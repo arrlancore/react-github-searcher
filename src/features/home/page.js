@@ -104,6 +104,89 @@ UserCard.propTypes = {
   location: PropTypes.string,
 };
 
+const EmptyContent = styled.div`
+  padding: 20px 8px;
+  font-size: 14px;
+  color: #888;
+`;
+
+const PaginationWrapper = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 20px;
+`;
+
+const PageButton = styled.button`
+  padding: 5px 10px;
+  margin: 0 5px;
+  border: 1px solid #e1e4e8;
+  border-radius: 4px;
+  cursor: pointer;
+  background-color: #fafbfc;
+  &:hover {
+    background-color: #f6f8fa;
+  }
+`;
+
+const Pagination = ({ totalPages, currentPage, onPageChange }) => {
+  const renderFirstEllipsis = currentPage - 2 > 1;
+  const renderLastEllipsis = currentPage + 2 < totalPages;
+  return (
+    <PaginationWrapper>
+      <PageButton
+        disabled={currentPage === 1}
+        onClick={() => onPageChange(currentPage - 1)}
+      >
+        Previous
+      </PageButton>
+
+      {currentPage - 1 > 1 && (
+        <PageButton onClick={() => onPageChange(1)}>{1}</PageButton>
+      )}
+
+      {renderFirstEllipsis && "..."}
+
+      {currentPage > 1 && (
+        <PageButton onClick={() => onPageChange(currentPage - 1)}>
+          {currentPage - 1}
+        </PageButton>
+      )}
+
+      <PageButton style={{ backgroundColor: "#333", color: "white" }}>
+        {currentPage}
+      </PageButton>
+
+      {currentPage < totalPages && (
+        <PageButton onClick={() => onPageChange(currentPage + 1)}>
+          {currentPage + 1}
+        </PageButton>
+      )}
+
+      {renderLastEllipsis && "..."}
+
+      {currentPage + 1 < totalPages && (
+        <PageButton onClick={() => onPageChange(totalPages)}>
+          {totalPages}
+        </PageButton>
+      )}
+
+      <PageButton
+        disabled={currentPage === totalPages}
+        onClick={() => onPageChange(currentPage + 1)}
+      >
+        Next
+      </PageButton>
+    </PaginationWrapper>
+  );
+};
+
+Pagination.propTypes = {
+  totalPages: PropTypes.number.isRequired,
+  currentPage: PropTypes.number.isRequired,
+  onPageChange: PropTypes.func.isRequired,
+};
+
 const Item = ({ type, data }) => {
   switch (type) {
     case "users":
@@ -125,24 +208,38 @@ const Item = ({ type, data }) => {
   }
 };
 
+Item.propTypes = {
+  type: PropTypes.oneOf(["users", "repository"]),
+  data: PropTypes.object,
+};
+
 const Home = () => {
   const defaultType = "users";
+  const pageSize = 9;
+  const [page, setPage] = useState(1);
   const [query, setQuery] = useState("");
   const [type, setType] = useState(defaultType);
-  const [page, setPage] = useState(1);
   const dispatch = useDispatch();
   const data = useSelector((state) => state.search.data[query]);
+  const totalPages = useSelector((state) => state.search.totalPages);
+
+  const params = { page, pageSize, type, query };
 
   const handleInputChange = (e) => {
     setQuery(e.target.value);
     setPage(1); // Reset page
-    dispatch(searchGithub({ query: e.target.value, type, page }));
+    dispatch(searchGithub({ ...params, query: e.target.value }));
   };
 
   const handleTypeChange = (e) => {
     setType(e.target.value);
     setPage(1); // Reset page
-    dispatch(searchGithub({ query, type: e.target.value, page }));
+    dispatch(searchGithub({ ...params, type: e.target.value }));
+  };
+
+  const handlePageChange = (newPage) => {
+    setPage(newPage);
+    dispatch(searchGithub({ ...params, page: newPage }));
   };
 
   return (
@@ -171,6 +268,16 @@ const Home = () => {
           </GridItem>
         ))}
       </GridContent>
+      {data?.items.length === 0 && (
+        <EmptyContent>There are no Search Result</EmptyContent>
+      )}
+      {data?.items.length > 0 && (
+        <Pagination
+          totalPages={totalPages}
+          currentPage={page}
+          onPageChange={(newPage) => handlePageChange(newPage)}
+        />
+      )}
     </BodyContainer>
   );
 };
