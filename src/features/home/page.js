@@ -5,6 +5,8 @@ import { styled } from "styled-components";
 import { searchGithub } from "./search-slice";
 import PropTypes from "prop-types";
 
+const [USERS, REPOSITORIES] = ["users", "repositories"];
+
 const BodyContainer = styled.div`
   padding: 16px;
 `;
@@ -57,8 +59,9 @@ const Card = styled.div`
   text-align: center;
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: flex-start;
   align-items: center;
+  height: max-content;
 `;
 
 const ProfileImage = styled.img`
@@ -102,6 +105,73 @@ UserCard.propTypes = {
   login: PropTypes.string.isRequired,
   name: PropTypes.string,
   location: PropTypes.string,
+};
+
+const RepoName = styled.a`
+  font-size: 18px;
+  font-weight: bold;
+  color: #0366d6;
+  text-decoration: none;
+  margin-bottom: 12px;
+  &:hover {
+    text-decoration: underline;
+  }
+`;
+
+const Author = styled.p`
+  font-size: 16px;
+  color: #586069;
+  margin-top: 8px;
+`;
+
+const Stats = styled.div`
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+  margin-top: 12px;
+  margin-bottom: 12px;
+  gap: 8px;
+`;
+
+const RepositoryCard = ({
+  name,
+  description,
+  htmlUrl,
+  owner,
+  stargazersCount,
+  forksCount,
+  updatedAt,
+  language,
+}) => {
+  return (
+    <Card title={description}>
+      <RepoName href={htmlUrl} target="_blank" rel="noopener noreferrer">
+        {name}
+      </RepoName>
+      <Author>by {owner}</Author>
+      <Stats>
+        <span>⭐ {stargazersCount}</span>
+        <span>🔗 {forksCount}</span>
+        <span title="Last update">
+          📅 {new Date(updatedAt).toLocaleDateString()}
+        </span>
+      </Stats>
+      <div>
+        <b>{language}</b>
+      </div>
+    </Card>
+  );
+};
+
+RepositoryCard.propTypes = {
+  htmlUrl: PropTypes.string.isRequired,
+  name: PropTypes.string.isRequired,
+  description: PropTypes.string,
+  owner: PropTypes.string.isRequired,
+  stargazersCount: PropTypes.number.isRequired,
+  forksCount: PropTypes.number.isRequired,
+  updatedAt: PropTypes.string.isRequired,
+  language: PropTypes.string,
 };
 
 const EmptyContent = styled.div`
@@ -189,7 +259,7 @@ Pagination.propTypes = {
 
 const Item = ({ type, data }) => {
   switch (type) {
-    case "users":
+    case USERS:
       return (
         <UserCard
           avatarUrl={data.avatar_url}
@@ -200,8 +270,19 @@ const Item = ({ type, data }) => {
         />
       );
 
-    case "repository":
-      return null;
+    case REPOSITORIES:
+      return (
+        <RepositoryCard
+          htmlUrl={data.html_url}
+          name={data.name}
+          description={data.description}
+          owner={data.owner?.login}
+          stargazersCount={data.stargazers_count}
+          forksCount={data.forks_count}
+          updatedAt={data.updated_at}
+          language={data.language}
+        />
+      );
 
     default:
       return null;
@@ -209,7 +290,7 @@ const Item = ({ type, data }) => {
 };
 
 Item.propTypes = {
-  type: PropTypes.oneOf(["users", "repository"]),
+  type: PropTypes.oneOf([USERS, REPOSITORIES]),
   data: PropTypes.object,
 };
 
@@ -231,10 +312,10 @@ const Home = () => {
     dispatch(searchGithub({ ...params, query: e.target.value }));
   };
 
-  const handleTypeChange = (e) => {
-    setType(e.target.value);
+  const handleTypeChange = (value) => {
+    setType(value);
     setPage(1); // Reset page
-    dispatch(searchGithub({ ...params, type: e.target.value }));
+    dispatch(searchGithub({ ...params, type: value }));
   };
 
   const handlePageChange = (newPage) => {
@@ -256,8 +337,8 @@ const Home = () => {
           onChange={handleTypeChange}
           defaultValue={defaultType}
           options={[
-            { value: "users", label: "Users" },
-            { value: "repository", label: "Repository" },
+            { value: USERS, label: "Users" },
+            { value: REPOSITORIES, label: "Repository" },
           ]}
         />
       </SearchContainer>
