@@ -3,7 +3,15 @@ import api from "lib/api";
 
 export const searchGithub = createAsyncThunk(
   "search/searchGithub",
-  async ({ query, type, page = 1, pageSize }) => {
+  async ({ query, type, page = 1, pageSize }, thunkAPI) => {
+    const key = `${query}_${type}_${page}_${pageSize}`;
+    const existingData = thunkAPI.getState().search.data[key];
+
+    // return existing data from store
+    if (existingData) {
+      return existingData;
+    }
+
     try {
       const response = await api.get(
         `search/${type}?q=${query}&per_page=${pageSize}&page=${page}`
@@ -42,8 +50,10 @@ const searchSlice = createSlice({
         state.error = null;
       })
       .addCase(searchGithub.fulfilled, (state, action) => {
+        const { query, type, page, pageSize } = action.meta.arg;
+        const key = `${query}_${type}_${page}_${pageSize}`;
+        state.data[key] = action.payload;
         state.status = "succeeded";
-        state.data[action.meta.arg.query] = action.payload;
         state.currentPage = action.meta.arg.page;
         state.totalPages = standardizeTotalPages(action.payload.total_count, 9);
         state.error = null;

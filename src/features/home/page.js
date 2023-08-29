@@ -102,8 +102,8 @@ const UserCard = (props) => {
 };
 
 UserCard.propTypes = {
-  avatar_url: PropTypes.string.isRequired,
-  html_url: PropTypes.string.isRequired,
+  avatarUrl: PropTypes.string.isRequired,
+  htmlUrl: PropTypes.string.isRequired,
   login: PropTypes.string.isRequired,
   name: PropTypes.string,
   location: PropTypes.string,
@@ -304,7 +304,8 @@ const Home = () => {
   const [type, setType] = useState(defaultType);
   const dispatch = useDispatch();
 
-  const data = useSelector((state) => state.search.data[query]);
+  const key = `${query}_${type}_${page}_${pageSize}`;
+  const data = useSelector((state) => state.search.data[key]);
   const totalPages = useSelector((state) => state.search.totalPages);
   const loadingStatus = useSelector((state) => state.search.status);
   const error = useSelector((state) => state.search.error);
@@ -316,7 +317,9 @@ const Home = () => {
   const handleInputChange = (e) => {
     setQuery(e.target.value);
     setPage(1); // Reset page
-    dispatch(searchGithub({ ...params, query: e.target.value }));
+    if (e.target.value.trim()) {
+      dispatch(searchGithub({ ...params, query: e.target.value }));
+    }
   };
 
   const handleTypeChange = (value) => {
@@ -352,12 +355,11 @@ const Home = () => {
       {isLoading && <Spinner />}
       {error && query && !isLoading && <ErrorMessage message={error} />}
       <GridContent>
-        {!error &&
-          data?.items?.map((item) => (
-            <GridItem key={item.id}>
-              <Item type={type} data={item} />
-            </GridItem>
-          ))}
+        {data?.items?.map((item) => (
+          <GridItem key={item.id}>
+            <Item type={type} data={item} />
+          </GridItem>
+        ))}
       </GridContent>
       {data?.items.length === 0 && (
         <EmptyContent>{`There are no result for keyword "${query}"`}</EmptyContent>
@@ -365,7 +367,7 @@ const Home = () => {
       {!query && (
         <EmptyContent>Type some keywords on search input</EmptyContent>
       )}
-      {data?.items.length > 0 && (
+      {data?.items.length && totalPages > 1 && (
         <Pagination
           totalPages={totalPages}
           currentPage={page}
