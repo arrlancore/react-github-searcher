@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { styled } from "styled-components";
 import { searchGithub } from "./search-slice";
 import PropTypes from "prop-types";
+import Spinner from "components/spinner";
 
 const [USERS, REPOSITORIES] = ["users", "repositories"];
 
@@ -303,6 +304,9 @@ const Home = () => {
   const dispatch = useDispatch();
   const data = useSelector((state) => state.search.data[query]);
   const totalPages = useSelector((state) => state.search.totalPages);
+  const loadingStatus = useSelector((state) => state.search.status);
+
+  const isLoading = loadingStatus === "loading";
 
   const params = { page, pageSize, type, query };
 
@@ -342,6 +346,7 @@ const Home = () => {
           ]}
         />
       </SearchContainer>
+      {isLoading && <Spinner />}
       <GridContent>
         {data?.items?.map((item) => (
           <GridItem key={item.id}>
@@ -350,7 +355,10 @@ const Home = () => {
         ))}
       </GridContent>
       {data?.items.length === 0 && (
-        <EmptyContent>There are no Search Result</EmptyContent>
+        <EmptyContent>{`There are no result for keyword "${query}"`}</EmptyContent>
+      )}
+      {!query && (
+        <EmptyContent>Type some keywords on search input</EmptyContent>
       )}
       {data?.items.length > 0 && (
         <Pagination
