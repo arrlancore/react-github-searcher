@@ -1,11 +1,12 @@
 import Select from "components/select";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { styled } from "styled-components";
 import { searchGithub } from "./search-slice";
 import PropTypes from "prop-types";
 import Spinner from "components/spinner";
 import ErrorMessage from "components/error-message";
+import debounce from "lodash.debounce";
 
 const [USERS, REPOSITORIES] = ["users", "repositories"];
 
@@ -314,11 +315,22 @@ const Home = () => {
 
   const params = { page, pageSize, type, query };
 
+  const debouncedSearch = debounce((value) => {
+    dispatch(searchGithub({ ...params, query: value }));
+  }, 300);
+
+  useEffect(() => {
+    return () => {
+      debouncedSearch.cancel();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const handleInputChange = (e) => {
     setQuery(e.target.value);
     setPage(1); // Reset page
     if (e.target.value.trim()) {
-      dispatch(searchGithub({ ...params, query: e.target.value }));
+      debouncedSearch(e.target.value);
     }
   };
 
