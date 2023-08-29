@@ -23,7 +23,6 @@ const PageButton = styled.button`
 
 const HideOnMobileDiv = styled.div`
   @media (max-width: 768px) {
-    // Assuming 768px is your mobile breakpoint
     display: none;
   }
 `;

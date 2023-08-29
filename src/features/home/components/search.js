@@ -2,13 +2,14 @@ import { styled } from "styled-components";
 import PropTypes from "prop-types";
 import React from "react";
 import Select from "components/select";
+import theme from "theme";
 
 const SearchContainer = styled.div`
   display: flex;
   gap: 16px;
   margin-bottom: 24px;
   flex-direction: column;
-  @media (min-width: ${(props) => props.theme.breakpoints.mobile}) {
+  @media (min-width: ${(props) => theme.breakpoints.mobile}) {
     flex-direction: row;
   }
 `;

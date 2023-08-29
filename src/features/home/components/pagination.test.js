@@ -5,7 +5,7 @@ import Pagination from "./pagination";
 
 describe("Pagination Component", () => {
   it("renders without crashing", () => {
-    const view = render(
+    render(
       <Pagination totalPages={5} currentPage={3} onPageChange={() => {}} />
     );
     expect(screen.getByText("Previous")).toBeInTheDocument();
@@ -14,7 +14,7 @@ describe("Pagination Component", () => {
 
   it("calls onPageChange with correct value when Next is clicked", () => {
     const onPageChangeMock = jest.fn();
-    const view = render(
+    render(
       <Pagination
         totalPages={5}
         currentPage={3}
@@ -27,7 +27,7 @@ describe("Pagination Component", () => {
 
   it("calls onPageChange with correct value when Previous is clicked", () => {
     const onPageChangeMock = jest.fn();
-    const view = render(
+    render(
       <Pagination
         totalPages={5}
         currentPage={3}
