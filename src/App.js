@@ -6,24 +6,27 @@ import AppContainer from "components/app-container";
 import theme from "theme";
 import ErrorBoundary from "components/error-boundary";
 import Header from "components/app-header";
+import { ThemeProvider } from "styled-components";
 
 function App() {
   return (
     <div className="App">
-      <ErrorBoundary>
-        <GlobalStyles />
-        <Header
-          title="Github Searcher"
-          description="Search user or repositories below"
-        />
-        <AppContainer theme={theme}>
-          <Router>
-            <Routes>
-              <Route path="/" element={<Home />} />
-            </Routes>
-          </Router>
-        </AppContainer>
-      </ErrorBoundary>
+      <ThemeProvider theme={theme}>
+        <ErrorBoundary>
+          <GlobalStyles />
+          <Header
+            title="Github Searcher"
+            description="Search user or repositories below"
+          />
+          <AppContainer>
+            <Router>
+              <Routes>
+                <Route path="/" element={<Home />} />
+              </Routes>
+            </Router>
+          </AppContainer>
+        </ErrorBoundary>
+      </ThemeProvider>
     </div>
   );
 }
