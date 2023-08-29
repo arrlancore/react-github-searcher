@@ -7,6 +7,7 @@ import PropTypes from "prop-types";
 import Spinner from "components/spinner";
 import ErrorMessage from "components/error-message";
 import debounce from "lodash.debounce";
+import { renderComponentIf } from "lib/render";
 
 const [USERS, REPOSITORIES] = ["users", "repositories"];
 
@@ -364,8 +365,12 @@ const Home = () => {
           ]}
         />
       </SearchContainer>
-      {isLoading && <Spinner />}
-      {error && query && !isLoading && <ErrorMessage message={error} />}
+
+      {renderComponentIf(isLoading)(<Spinner />)}
+      {renderComponentIf(error && query && !isLoading)(
+        <ErrorMessage message={error} />
+      )}
+
       <GridContent>
         {data?.items?.map((item) => (
           <GridItem key={item.id}>
@@ -373,13 +378,14 @@ const Home = () => {
           </GridItem>
         ))}
       </GridContent>
-      {data?.items.length === 0 && (
+
+      {renderComponentIf(data?.items.length === 0)(
         <EmptyContent>{`There are no result for keyword "${query}"`}</EmptyContent>
       )}
-      {!query && (
+      {renderComponentIf(!query)(
         <EmptyContent>Type some keywords on search input</EmptyContent>
       )}
-      {data?.items.length && totalPages > 1 && (
+      {renderComponentIf(data?.items.length && !error)(
         <Pagination
           totalPages={totalPages}
           currentPage={page}
