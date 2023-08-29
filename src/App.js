@@ -7,6 +7,9 @@ import theme from "theme";
 import ErrorBoundary from "components/error-boundary";
 import Header from "components/app-header";
 import { ThemeProvider } from "styled-components";
+import { Provider } from "react-redux";
+import { PersistGate } from "redux-persist/integration/react";
+import { persistor, store } from "lib/store";
 
 const caption = {
   appTitle: "Github Searcher",
@@ -16,22 +19,26 @@ const caption = {
 function App() {
   return (
     <div className="App">
-      <ThemeProvider theme={theme}>
-        <ErrorBoundary>
-          <GlobalStyles />
-          <Header
-            title={caption.appTitle}
-            description={caption.appDescription}
-          />
-          <AppContainer>
-            <Router>
-              <Routes>
-                <Route path="/" element={<Home />} />
-              </Routes>
-            </Router>
-          </AppContainer>
-        </ErrorBoundary>
-      </ThemeProvider>
+      <Provider store={store}>
+        <PersistGate loading={null} persistor={persistor}>
+          <ThemeProvider theme={theme}>
+            <ErrorBoundary>
+              <GlobalStyles />
+              <Header
+                title={caption.appTitle}
+                description={caption.appDescription}
+              />
+              <AppContainer>
+                <Router>
+                  <Routes>
+                    <Route path="/" element={<Home />} />
+                  </Routes>
+                </Router>
+              </AppContainer>
+            </ErrorBoundary>
+          </ThemeProvider>
+        </PersistGate>
+      </Provider>
     </div>
   );
 }

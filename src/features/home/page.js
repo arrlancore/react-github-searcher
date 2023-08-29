@@ -1,6 +1,8 @@
 import Select from "components/select";
-import React from "react";
+import React, { useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { styled } from "styled-components";
+import { searchGithub } from "./search-slice";
 
 const BodyContainer = styled.div`
   padding: 16px;
@@ -48,12 +50,39 @@ const GridItem = styled.div`
 `;
 
 const Home = () => {
+  const defaultType = "users";
+  const [query, setQuery] = useState("");
+  const [type, setType] = useState(defaultType); // or 'users'
+  const [page, setPage] = useState(1);
+  const dispatch = useDispatch();
+  const data = useSelector((state) => state.search.data[query]);
+
+  const handleInputChange = (e) => {
+    setQuery(e.target.value);
+    setPage(1); // Reset to the first page when the query changes
+    dispatch(searchGithub({ query: e.target.value, type, page }));
+  };
+
+  const handleTypeChange = (e) => {
+    setType(e.target.value);
+    setPage(1); // Reset to the first page when the type changes
+    dispatch(searchGithub({ query, type: e.target.value, page }));
+  };
+
+  console.log(data);
   return (
     <BodyContainer>
       <SearchContainer>
-        <SearchInput type="text" placeholder="Search" />
+        <SearchInput
+          type="text"
+          placeholder="Search"
+          value={query}
+          onChange={handleInputChange}
+        />
         <Select
-          onChange={console.log}
+          value={type}
+          onChange={handleTypeChange}
+          defaultValue={defaultType}
           options={[
             { value: "users", label: "Users" },
             { value: "repository", label: "Repository" },

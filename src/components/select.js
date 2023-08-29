@@ -47,7 +47,7 @@ const ImgIcon = styled.img`
   cursor: pointer;
 `;
 
-const Select = ({ options, onChange, placeholder }) => {
+const Select = ({ options, onChange, placeholder, defaultValue }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedLabel, setSelectedLabel] = useState(null);
   const ref = useRef(null);
@@ -74,7 +74,9 @@ const Select = ({ options, onChange, placeholder }) => {
   return (
     <SelectContainer ref={ref}>
       <SelectedValue onClick={() => setIsOpen(!isOpen)}>
-        {selectedLabel || <Placeholder>{placeholder}</Placeholder>}
+        {selectedLabel || defaultValue || (
+          <Placeholder>{placeholder}</Placeholder>
+        )}
       </SelectedValue>
       {isOpen && (
         <OptionsContainer>
@@ -108,6 +110,7 @@ Select.propTypes = {
   ).isRequired,
   onChange: PropTypes.func.isRequired,
   placeholder: PropTypes.string,
+  defaultValue: PropTypes.string,
 };
 
 Select.defaultProps = {
