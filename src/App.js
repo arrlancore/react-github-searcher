@@ -8,6 +8,11 @@ import ErrorBoundary from "components/error-boundary";
 import Header from "components/app-header";
 import { ThemeProvider } from "styled-components";
 
+const caption = {
+  appTitle: "Github Searcher",
+  appDescription: "Search user or repositories below",
+};
+
 function App() {
   return (
     <div className="App">
@@ -15,8 +20,8 @@ function App() {
         <ErrorBoundary>
           <GlobalStyles />
           <Header
-            title="Github Searcher"
-            description="Search user or repositories below"
+            title={caption.appTitle}
+            description={caption.appDescription}
           />
           <AppContainer>
             <Router>
