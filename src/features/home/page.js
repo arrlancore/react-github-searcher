@@ -5,6 +5,7 @@ import { styled } from "styled-components";
 import { searchGithub } from "./search-slice";
 import PropTypes from "prop-types";
 import Spinner from "components/spinner";
+import ErrorMessage from "components/error-message";
 
 const [USERS, REPOSITORIES] = ["users", "repositories"];
 
@@ -302,9 +303,11 @@ const Home = () => {
   const [query, setQuery] = useState("");
   const [type, setType] = useState(defaultType);
   const dispatch = useDispatch();
+
   const data = useSelector((state) => state.search.data[query]);
   const totalPages = useSelector((state) => state.search.totalPages);
   const loadingStatus = useSelector((state) => state.search.status);
+  const error = useSelector((state) => state.search.error);
 
   const isLoading = loadingStatus === "loading";
 
@@ -347,12 +350,14 @@ const Home = () => {
         />
       </SearchContainer>
       {isLoading && <Spinner />}
+      {error && query && !isLoading && <ErrorMessage message={error} />}
       <GridContent>
-        {data?.items?.map((item) => (
-          <GridItem key={item.id}>
-            <Item type={type} data={item} />
-          </GridItem>
-        ))}
+        {!error &&
+          data?.items?.map((item) => (
+            <GridItem key={item.id}>
+              <Item type={type} data={item} />
+            </GridItem>
+          ))}
       </GridContent>
       {data?.items.length === 0 && (
         <EmptyContent>{`There are no result for keyword "${query}"`}</EmptyContent>

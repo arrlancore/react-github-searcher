@@ -4,10 +4,16 @@ import api from "lib/api";
 export const searchGithub = createAsyncThunk(
   "search/searchGithub",
   async ({ query, type, page = 1, pageSize }) => {
-    const response = await api.get(
-      `search/${type}?q=${query}&per_page=${pageSize}&page=${page}`
-    );
-    return response.data;
+    try {
+      const response = await api.get(
+        `search/${type}?q=${query}&per_page=${pageSize}&page=${page}`
+      );
+      return response.data;
+    } catch (error) {
+      throw new Error(
+        error.response?.data?.message || "Something went wrong on fetching.."
+      );
+    }
   }
 );
 
@@ -33,12 +39,14 @@ const searchSlice = createSlice({
     builder
       .addCase(searchGithub.pending, (state) => {
         state.status = "loading";
+        state.error = null;
       })
       .addCase(searchGithub.fulfilled, (state, action) => {
         state.status = "succeeded";
         state.data[action.meta.arg.query] = action.payload;
         state.currentPage = action.meta.arg.page;
         state.totalPages = standardizeTotalPages(action.payload.total_count, 9);
+        state.error = null;
       })
       .addCase(searchGithub.rejected, (state, action) => {
         state.status = "failed";
