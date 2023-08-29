@@ -61,6 +61,8 @@ const Home = () => {
   const handleTypeChange = (value) => {
     setType(value);
     setPage(1); // Reset page
+
+    if (!query) return;
     dispatch(searchGithub({ ...params, type: value }));
   };
 
